@@ -38,28 +38,22 @@ namespace Server.MirDatabase
         public int FlagNeeded = 0;
         public int Conquest;
 
-        public bool IsDefault, IsRobot;
-
         public List<int> CollectQuestIndexes = new List<int>();
         public List<int> FinishQuestIndexes = new List<int>();
         
-        public NPCInfo()
-        { }
+        public NPCInfo() { }
         public NPCInfo(BinaryReader reader)
         {
-            if (Envir.LoadVersion > 33)
-            {
-                Index = reader.ReadInt32();
-                MapIndex = reader.ReadInt32();
+            Index = reader.ReadInt32();
+            MapIndex = reader.ReadInt32();
 
-                int count = reader.ReadInt32();
-                for (int i = 0; i < count; i++)
-                    CollectQuestIndexes.Add(reader.ReadInt32());
+            int count = reader.ReadInt32();
+            for (int i = 0; i < count; i++)
+                CollectQuestIndexes.Add(reader.ReadInt32());
 
-                count = reader.ReadInt32();
-                for (int i = 0; i < count; i++)
-                    FinishQuestIndexes.Add(reader.ReadInt32());
-            }
+            count = reader.ReadInt32();
+            for (int i = 0; i < count; i++)
+                FinishQuestIndexes.Add(reader.ReadInt32());
 
             FileName = reader.ReadString();
             Name = reader.ReadString();

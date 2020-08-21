@@ -67,7 +67,7 @@ namespace Server.MirDatabase
             }
 
             ViewRange = reader.ReadByte();
-            if (Envir.LoadVersion >= 3) CoolEye = reader.ReadByte();
+            CoolEye = reader.ReadByte();
 
             HP = reader.ReadUInt32();
 
@@ -105,14 +105,6 @@ namespace Server.MirDatabase
             AttackSpeed = reader.ReadUInt16();
             MoveSpeed = reader.ReadUInt16();
             Experience = reader.ReadUInt32();
-
-            if (Envir.LoadVersion < 6)
-            {
-                reader.BaseStream.Seek(8, SeekOrigin.Current);
-
-                int count = reader.ReadInt32();
-                reader.BaseStream.Seek(count*12, SeekOrigin.Current);
-            }
 
             CanPush = reader.ReadBoolean();
             CanTame = reader.ReadBoolean();
@@ -303,6 +295,11 @@ namespace Server.MirDatabase
         public static DropInfo FromLine(string s)
         {
             string[] parts = s.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length < 2)
+            {
+                return null;
+            }
 
             DropInfo info = new DropInfo();
 

@@ -1,13 +1,13 @@
-﻿using Client.MirGraphics;
-using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
-using System;
+﻿using System;
 using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
+using Client.MirGraphics;
+using SlimDX;
+using SlimDX.Direct3D9;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace Client.MirControls
 {
@@ -143,7 +143,7 @@ namespace Client.MirControls
         }
 
         #endregion
-
+        
         #region TextBox
 
         public bool CanLoseFocus;
@@ -215,7 +215,6 @@ namespace Client.MirControls
                 if (Program.Form.ActiveControl == null || Program.Form.ActiveControl == Program.Form)
                     Program.Form.ActiveControl = TextBox;
 
-
             if (!TextBox.Visible)
                 if (Program.Form.ActiveControl == TextBox)
                     Program.Form.Focus();
@@ -230,6 +229,8 @@ namespace Client.MirControls
             if (TextBox.CanFocus) TextBox.Focus();
             else if (TextBox.Visible && TextBox.Parent != null)
                 Program.Form.ActiveControl = TextBox;
+
+
         }
 
         #endregion
@@ -259,20 +260,18 @@ namespace Client.MirControls
                 BackColor = BackColour,
                 BorderStyle = BorderStyle.None,
                 Font = new System.Drawing.Font(Settings.FontName, 10F * 96f / CMain.Graphics.DpiX),
-
                 ForeColor = ForeColour,
                 Location = DisplayLocation,
                 Size = Size,
                 Visible = Visible,
                 Tag = this,
-
             };
 
             CaretPen = new Pen(ForeColour, 1);
 
             TextBox.VisibleChanged += TextBox_VisibleChanged;
             TextBox.ParentChanged += TextBox_VisibleChanged;
-            TextBox.KeyUp += TextBoxOnKeyUp;
+            TextBox.KeyUp += TextBoxOnKeyUp;  
             TextBox.KeyPress += TextBox_KeyPress;
 
             TextBox.KeyPress += TextBox_NeedRedraw;
@@ -308,14 +307,13 @@ namespace Client.MirControls
                 DXManager.ControlList.Add(this);
 
                 ControlTexture = new Texture(DXManager.Device, Size.Width, Size.Height, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
-                ControlTexture.Disposing += ControlTexture_Disposing;
                 TextureSize = Size;
             }
 
             Point caret = GetCaretPosition();
 
-            using (GraphicsStream stream = ControlTexture.LockRectangle(0, LockFlags.Discard))
-            using (Bitmap bm = new Bitmap(Size.Width, Size.Height, Size.Width * 4, PixelFormat.Format32bppArgb, (IntPtr)stream.InternalDataPointer))
+            DataRectangle stream = ControlTexture.LockRectangle(0, LockFlags.Discard);
+            using (Bitmap bm = new Bitmap(Size.Width, Size.Height, Size.Width * 4, PixelFormat.Format32bppArgb, stream.Data.DataPointer))
             {
                 TextBox.DrawToBitmap(bm, new Rectangle(0, 0, Size.Width, Size.Height));
                 using (Graphics graphics = Graphics.FromImage(bm))
@@ -353,6 +351,7 @@ namespace Client.MirControls
                 case Keys.PrintScreen:
                     CMain.CMain_KeyUp(sender, e);
                     break;
+
             }
         }
 
@@ -398,16 +397,16 @@ namespace Client.MirControls
 
             if (MirScene.ActiveScene != null && MirScene.ActiveScene.Controls.Count > 0)
             {
-                box1 = (MirMessageBox)MirScene.ActiveScene.Controls.FirstOrDefault(ob => ob is MirMessageBox);
-                box2 = (MirInputBox)MirScene.ActiveScene.Controls.FirstOrDefault(O => O is MirInputBox);
-                box3 = (MirAmountBox)MirScene.ActiveScene.Controls.FirstOrDefault(ob => ob is MirAmountBox);
+                box1 = (MirMessageBox) MirScene.ActiveScene.Controls.FirstOrDefault(ob => ob is MirMessageBox);
+                box2 = (MirInputBox) MirScene.ActiveScene.Controls.FirstOrDefault(O => O is MirInputBox);
+                box3 = (MirAmountBox) MirScene.ActiveScene.Controls.FirstOrDefault(ob => ob is MirAmountBox);
             }
 
-            if ((box1 != null && box1 != Parent) || (box2 != null && box2 != Parent) || (box3 != null && box3 != Parent))
+
+            if ((box1 != null && box1 != Parent) || (box2 != null && box2 != Parent)  || (box3 != null && box3 != Parent))
                 TextBox.Visible = false;
             else
                 TextBox.Visible = Visible && TextBox.Parent != null;
-
         }
 
 

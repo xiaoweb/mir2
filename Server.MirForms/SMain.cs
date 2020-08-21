@@ -361,8 +361,13 @@ namespace Server
 
         private void SMain_Load(object sender, EventArgs e)
         {
-            EditEnvir.LoadDB();
-            Envir.Start();
+            var loaded = EditEnvir.LoadDB();
+
+            if (loaded)
+            {
+                Envir.Start();
+            }
+
             AutoResize();
         }
 
@@ -408,7 +413,7 @@ namespace Server
 
         private void reloadNPCsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Envir.ReloadNPCs();
+            Envir.ReloadNPCs(null);
         }
 
         private void reloadDropsToolStripMenuItem_Click(object sender, EventArgs e)
